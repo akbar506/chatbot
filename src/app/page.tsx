@@ -1,101 +1,103 @@
-import Image from "next/image";
+"use client"
+
+import { useEffect, useState, useRef } from "react"
+import Link from "next/link"
+import { Github } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const heroRef = useRef<HTMLDivElement>(null)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect()
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        })
+      }
+    }
+
+    const heroElement = heroRef.current
+    if (heroElement) {
+      heroElement.addEventListener("mousemove", handleMouseMove)
+    }
+
+    return () => {
+      if (heroElement) {
+        heroElement.removeEventListener("mousemove", handleMouseMove)
+      }
+    }
+  }, [])
+
+  return (
+    <>
+      <main className="min-h-screen bg-black text-white">
+        <nav className="flex justify-between items-center p-5">
+          {/* <div className="flex items-center">
+            <div className="translate-y-px [&amp;_svg]:size-4 [&amp;_svg]:shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"></path><path d="M20 3v4"></path><path d="M22 5h-4"></path><path d="M4 17v2"></path><path d="M5 18H3"></path></svg></div>
+          </div> */}
+          <span className="font-bold text-2xl">AI CHAT</span>
+          <Link href={""}>
+            <Github />
+          </Link>
+        </nav>
+        <div
+          ref={heroRef}
+          className="relative overflow-hidden min-h-[calc(100vh-100px)] flex items-center justify-center"
+        >
+          {/* Curved line */}
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,100 C30,40 70,40 100,100" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="0.3" />
+          </svg>
+
+          {/* Animated balls */}
+          <div
+            className="absolute w-32 h-32 rounded-full bg-gradient-to-r bg-white/50 blur-2xl"
+            // className="absolute w-32 h-32 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-xl"
+            style={{
+              left: "15%",
+              top: "20%",
+              transform: `translate(${(mousePosition.x - 500) / 30}px, ${(mousePosition.y - 300) / 30}px)`,
+              transition: "transform 0.3s ease-out",
+            }}
+          />
+          <div
+            className="absolute w-48 h-48 rounded-full bg-white/50 blur-3xl"
+            style={{
+              right: "20%",
+              top: "30%",
+              transform: `translate(${(mousePosition.x - 800) / 25}px, ${(mousePosition.y - 400) / 25}px)`,
+              transition: "transform 0.2s ease-out",
+            }}
+          />
+          <div
+            className="absolute w-24 h-24 rounded-full bg-white/50 blur-2xl"
+            style={{
+              left: "30%",
+              bottom: "25%",
+              transform: `translate(${(mousePosition.x - 300) / 20}px, ${(mousePosition.y - 600) / 20}px)`,
+              transition: "transform 0.4s ease-out",
+            }}
+          />
+
+          {/* Content */}
+          <div className="container mx-auto px-4 relative z-10 text-center max-w-3xl">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">The next era of Artificial Intelligence</h1>
+            <p className="text-lg md:text-xl text-gray-300 mb-8 leading-relaxed">
+              Discover a new dimension of web interaction with our cutting-edge solutions powered by the Gemini AI model, designed to transform your online presence.
+            </p>
+            <Link
+              href="/chats"
+              className="inline-block bg-white text-black font-medium py-3 px-8 rounded-full hover:bg-gray-200 transition-colors duration-300"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    </>
+  )
 }
+
