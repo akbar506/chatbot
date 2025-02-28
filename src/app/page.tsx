@@ -6,45 +6,63 @@ import { Github } from "lucide-react";
 
 export default function Home() {
   const [positions, setPositions] = useState([
-    { x: 0, y: 0, speedX: 2, speedY: 2, rotation: 0, scale: 1 },
-    { x: 0, y: 0, speedX: -2, speedY: 1.5, rotation: 0, scale: 1 },
-    { x: 0, y: 0, speedX: 1.5, speedY: -2, rotation: 0, scale: 1 },
+    { x: 0, y: 0, speedX: 0.8, speedY: 0.6, rotation: 0, scale: 1, offset: 0 },
+    { x: 0, y: 0, speedX: -0.7, speedY: 0.5, rotation: 0, scale: 1, offset: 2 },
+    { x: 0, y: 0, speedX: 0.5, speedY: -0.7, rotation: 0, scale: 1, offset: 4 },
   ]);
   const heroRef = useRef<HTMLDivElement>(null)
   const animationFrameRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
 
   useEffect(() => {
     const animate = () => {
+      const currentTime = Date.now();
+      const elapsedTime = (currentTime - startTimeRef.current) / 2000; // Slower time factor
+
       setPositions(prevPositions => 
         prevPositions.map(pos => {
-          // Random chance to change direction and speed
-          const shouldChangeDirection = Math.random() < 0.09;
-          let newSpeedX = shouldChangeDirection ? 
-            pos.speedX + (Math.random() * 2 - 1) : pos.speedX;
-          let newSpeedY = shouldChangeDirection ? 
-            pos.speedY + (Math.random() * 2 - 1) : pos.speedY;
+          // Continuous wave motion based on elapsed time
+          const waveX = Math.sin(elapsedTime + pos.offset) * 0.3;
+          const waveY = Math.cos(elapsedTime + pos.offset) * 0.3;
 
-          // Keep speed within bounds
-          newSpeedX = Math.max(Math.min(newSpeedX, 4), -4);
-          newSpeedY = Math.max(Math.min(newSpeedY, 4), -4);
+          // Smooth speed adjustments
+          let newSpeedX = pos.speedX + waveX * 0.1;
+          let newSpeedY = pos.speedY + waveY * 0.1;
 
-          // Update position
+          // Occasional random influence
+          if (Math.random() < 0.005) {
+            newSpeedX += (Math.random() * 0.2 - 0.1);
+            newSpeedY += (Math.random() * 0.2 - 0.1);
+          }
+
+          // Keep speed within bounds (slower speeds)
+          newSpeedX = Math.max(Math.min(newSpeedX, 1.2), -1.2);
+          newSpeedY = Math.max(Math.min(newSpeedY, 1.2), -1.2);
+
+          // Update position with smoother movement
           let newX = pos.x + newSpeedX;
           let newY = pos.y + newSpeedY;
 
-          // Bounce off boundaries with random angle change
-          if (Math.abs(newX) > 150) {
-            newSpeedX = -newSpeedX * (1 + Math.random() * 0.4);
-            newX = newX > 0 ? 150 : -150;
+          // Smooth bounce off boundaries with gradual slowdown
+          const boundaryMargin = 180;
+          if (Math.abs(newX) > boundaryMargin) {
+            const overflow = Math.abs(newX) - boundaryMargin;
+            const slowdown = 1 - Math.min(overflow / 20, 0.8);
+            newSpeedX = -newSpeedX * slowdown;
+            newX = newX > 0 ? boundaryMargin : -boundaryMargin;
           }
-          if (Math.abs(newY) > 150) {
-            newSpeedY = -newSpeedY * (1 + Math.random() * 0.4);
-            newY = newY > 0 ? 150 : -150;
+          if (Math.abs(newY) > boundaryMargin) {
+            const overflow = Math.abs(newY) - boundaryMargin;
+            const slowdown = 1 - Math.min(overflow / 20, 0.8);
+            newSpeedY = -newSpeedY * slowdown;
+            newY = newY > 0 ? boundaryMargin : -boundaryMargin;
           }
 
-          // Update rotation and scale
-          const newRotation = (pos.rotation + (Math.random() * 2)) % 360;
-          const newScale = 0.8 + Math.sin(Date.now() / 1000) * 0.2;
+          // Continuous rotation and scale
+          const rotationSpeed = 0.3;
+          const newRotation = (pos.rotation + rotationSpeed) % 360;
+          const scalePhase = (elapsedTime * Math.PI) % (Math.PI * 2);
+          const newScale = 0.95 + Math.sin(scalePhase) * 0.1;
 
           return {
             x: newX,
@@ -53,6 +71,7 @@ export default function Home() {
             speedY: newSpeedY,
             rotation: newRotation,
             scale: newScale,
+            offset: pos.offset,
           };
         })
       );
@@ -99,7 +118,7 @@ export default function Home() {
               left: "15%",
               top: "20%",
               transform: `translate(${positions[0].x}px, ${positions[0].y}px) rotate(${positions[0].rotation}deg) scale(${positions[0].scale})`,
-              transition: "transform 0.1s linear",
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           />
           <div
@@ -108,7 +127,7 @@ export default function Home() {
               right: "20%",
               top: "30%",
               transform: `translate(${positions[1].x}px, ${positions[1].y}px) rotate(${positions[1].rotation}deg) scale(${positions[1].scale})`,
-              transition: "transform 0.1s linear",
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           />
           <div
@@ -117,7 +136,7 @@ export default function Home() {
               left: "30%",
               bottom: "25%",
               transform: `translate(${positions[2].x}px, ${positions[2].y}px) rotate(${positions[2].rotation}deg) scale(${positions[2].scale})`,
-              transition: "transform 0.1s linear",
+              transition: "transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           />
 
